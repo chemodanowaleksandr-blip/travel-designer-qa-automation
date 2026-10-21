@@ -1,22 +1,25 @@
 import pytest
 from playwright.sync_api import Page, expect
-from pages.configurator_page import ConfiguratorPage
 
 @pytest.mark.ui
 def test_successful_form_reset_on_prod(page: Page):
     """Альтернативный поток 1: Сброс параметров формы и обнуление прогресс-бара"""
-    config_page = ConfiguratorPage(page)
     
-    # 1. Открываем рабочий стенд
-    config_page.open()
+    # 1. Открываем рабочий стенд напрямую
+    page.goto("https://elmobil.ru")
+    page.wait_for_load_state("networkidle")
     
-    # 2. Заполняем поле (выбираем горнолыжный курорт)
-    config_page.select_resort("Горнолыжный курорт")
+    # 2. Выбираем горнолыжный курорт (клик по выпадашке и элементу)
+    page.locator("text=Выбрать локацию").first.click()
+    page.locator("text=Горнолыжный курорт").click()
     
     # 3. Вызываем сброс и соглашаемся в модальном окне
-    config_page.trigger_reset()
-    config_page.confirm_reset()
+    page.locator("button", has_text="Сбросить").click()
+    page.locator("button", has_text="Да").click()
     
     # 4. Проверяем состояние интерфейса согласно требованиям ТЗ
-    expect(config_page.progress_bar).to_contain_text("0%")
-    expect(config_page.checkout_button).to_be_disabled()
+    progress_bar = page.locator("[class*='progress-bar'], [class*='progress']").first
+    checkout_button = page.locator("button", has_text="К оформлению")
+    
+    expect(progress_bar).to_contain_text("0%")
+    expect(checkout_button).to_be_disabled()
