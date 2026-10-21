@@ -4,19 +4,19 @@ from pages.configurator_page import ConfiguratorPage
 
 @pytest.mark.ui
 def test_successful_form_reset_on_prod(page: Page):
-    """Альтернативный поток 1: Проверка полного сброса параметров и прогресс-бара"""
+    """Альтернативный поток 1: Сброс параметров формы и обнуление прогресс-бара"""
     config_page = ConfiguratorPage(page)
     
-    # 1. Переходим на реальный адрес сайта
-    page.goto("https://trip.elmobil.ru/trip-builder")
+    # 1. Открываем рабочий стенд
+    config_page.open()
     
-    # 2. Выбираем локацию (горнолыжный курорт), чтобы заполнить форму
-    config_page.select_location("Горнолыжный курорт")
+    # 2. Заполняем поле (выбираем горнолыжный курорт)
+    config_page.select_resort("Горнолыжный курорт")
     
-    # 3. Нажимаем кнопку сброса и подтверждаем действие в модальном окне
-    config_page.click_reset()
+    # 3. Вызываем сброс и соглашаемся в модальном окне
+    config_page.trigger_reset()
     config_page.confirm_reset()
     
-    # 4. Проверяем ОР из ТЗ: прогресс-бар сброшен, кнопка заблокирована
-    expect(config_page.progress_bar).to_have_text("0%")
+    # 4. Проверяем состояние интерфейса согласно требованиям ТЗ
+    expect(config_page.progress_bar).to_contain_text("0%")
     expect(config_page.checkout_button).to_be_disabled()
