@@ -1,25 +1,12 @@
 import pytest
 import pytest_html
-from playwright.sync_api import sync_playwright, APIRequestContext, Page
+from playwright.sync_api import Page
 
 @pytest.fixture(scope="session")
 def base_url() -> str:
     return "https://elmobil.ru"
 
-@pytest.fixture(scope="session")
-def api_request_context(base_url: str) -> APIRequestContext:
-    with sync_playwright() as p:
-        request_context = p.request.new_context(
-            base_url=base_url,
-            extra_http_headers={
-                "Accept": "application/json",
-                "Content-Type": "application/json"
-            }
-        )
-        yield request_context
-        request_context.dispose()
-
-# Автоматическое добавление скриншота экрана в HTML-отчет при падении любого UI теста
+# Автоматическое добавление скриншота в HTML-отчет при падении UI-теста
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
     outcome = yield
