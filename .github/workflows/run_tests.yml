@@ -30,23 +30,21 @@ jobs:
         pip install -r requirements.txt
         playwright install --with-deps chromium
 
-    # 1. Запускаем тесты и собираем сырые результаты
+    # ЯВНО указываем папку tests, чтобы pytest гарантированно собрал тесты
     - name: Run tests with Allure
       run: |
-        pytest --alluredir=allure-results
+        pytest tests/ --alluredir=allure-results
       continue-on-error: true
 
-    # 2. Устанавливаем официальный Allure CLI напрямую через npm (без Докера!)
     - name: Install Allure CLI
       run: |
         npm install -g allure-commandline --save-dev
 
-    # 3. Генерируем полноценный HTML-отчёт из папки allure-results в папку allure-report
+    # Генерируем отчет из результатов
     - name: Generate Allure Report HTML
       run: |
         allure generate allure-results --clean -o allure-report
 
-    # 4. Публикуем сгенерированную чистую папку allure-report на GitHub Pages
     - name: Deploy Allure Report to GitHub Pages
       uses: peaceiris/actions-gh-pages@v4
       if: always()
