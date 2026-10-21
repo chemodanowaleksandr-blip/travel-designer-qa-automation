@@ -1,96 +1,52 @@
-# Travel Designer Platform — QA Automation Suite
+# Автоматизация тестирования платформы Travel Designer
 
-This repository contains an automated test suite designed as a bonus technical assignment for the **Travel Designer** travel configuration platform. It complements the manual test documentation by covering critical End-to-End (E2E) UI flows and core integration API endpoints.
+Этот репозиторий содержит фреймворк автоматизации тестирования, разработанный в качестве расширенного технического бонуса к тестовому заданию для платформы **Travel Designer** (конфигуратор путешествий). Проект дополняет ручную тестовую документацию, покрывая критические End-to-End (E2E) сценарии интерфейса и интеграционные ручки API.
 
-## 🚀 Tech Stack
+## 🚀 Стек технологий
 
-*   **Language:** Python 3.11+ [2026 Baseline]
-*   **Test Runner:** Pytest
-*   **Automation Library:** Playwright (Python implementation for fast, isolated, and reliable browser automation)
-*   **Design Pattern:** Page Object Model (POM)
+*   **Язык программирования:** Python 3.11+
+*   **Тест-раннер:** Pytest
+*   **Библиотека автоматизации:** Playwright & Requests
+*   **Паттерн проектирования:** Page Object Model (POM)
+*   **Отчётность:** Allure Report
 
 ---
 
-## 📁 Project Structure
+## 📁 Структура проекта
 
 ```text
 travel_designer_automation/
+├── .github/workflows/
+│   └── run_tests.yml      # Настройки CI/CD пайплайна для GitHub Actions
 ├── pages/
-│   └── configurator_page.py    # Page Object implementation (selectors & actions)
+│   └── configurator_page.py    # Реализация Page Object (локаторы и действия)
 ├── tests/
-│   ├── test_ui_configurator.py # UI E2E test cases (Form reset, step progression)
-│   └── test_api_sharing.py     # API integration tests (UUID generation for sharing)
-├── conftest.py                 # Pytest fixtures for browser and API client setup
-├── pytest.ini                  # Pytest configuration and CLI options
-├── requirements.txt            # Project dependencies
-└── README.md                   # This documentation file
+│   ├── test_ui_configurator.py # Автоматизированные UI E2E тест-кейсы
+│   └── test_api_sharing.py     # Интеграционные тесты API бэкенда
+├── conftest.py                 # Базовые фикстуры Pytest и хуки для скриншотов
+├── pytest.ini                  # Конфигурация запуска тестов и теги
+├── requirements.txt            # Зависимости проекта
+└── README.md                   # Данный файл документации
 ```
 
 ---
 
-## 🧪 Covered Test Scenarios
+## 🧪 Покрытые сценарии тестирования
 
-### 🖥️ UI Testing (`tests/test_ui_configurator.py`)
-*   **Alternative Flow 1 (Successful Form Reset):** 
-    Validates that filling out configuration fields updates the progress bar, and clicking "Reset" fully clears the form, resets the progress bar strictly to `0%`, and deactivates the "Proceed to Checkout" button (`disabled`).
+### 🖥️ UI Тестирование (`tests/test_ui_configurator.py`)
+*   **Альтернативный поток 1 (Успешный сброс формы):** 
+    Проверяет, что заполнение полей конфигуратора корректно двигает прогресс-бар, а нажатие кнопки «Сбросить» полностью очищает форму, сбрасывает прогресс-бар строго в `0%` и деактивирует кнопку «К оформлению» (`disabled`).
 
-### 🔌 API Testing (`tests/test_api_sharing.py`)
-*   **Flow 4 (Share Link Generation):** 
-    Sends a `POST` request with a configuration payload to ensure the backend generates a valid permanent sharing token, matching the `UUID` format (36-character length string) as defined in the requirements.
-
----
-
-## 🛠️ Setup & Installation
-
-Follow these steps to set up the local testing environment:
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com
-   cd travel-designer-qa-automation
-   ```
-
-2. **Create and activate a virtual environment:**
-   ```bash
-   python -m venv venv
-   # On macOS/Linux:
-   source venv/bin/activate
-   # On Windows (CMD):
-   venv\Scripts\activate.bat
-   ```
-
-3. **Install project dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Install Playwright system browsers:**
-   ```bash
-   playwright install
-   ```
+### 🔌 API Тестирование (`tests/test_api_sharing.py`)
+*   **Поток 4 (Генерация ссылки для шеринга):** 
+    Проверяет отправку POST-запроса с параметрами тура, валидирует структуру ответа и формат постоянного токена (`UUID` длиной 36 символов). Помечен как `xfail` (ожидаемый сбой) из-за текущей ошибки 404 на бэкенде.
 
 ---
 
-## 🏃 Running Tests
+## 🛠️ Запуск тестов в CI/CD и отчёты
 
-You can execute the test suite using standard Pytest commands:
+В проекте настроена полная автоматизация на базе **GitHub Actions**. Тесты запускаются сами при каждом пуше кода в ветки `main` и `develop`.
 
-*   **Run all tests (headless mode):**
-    ```bash
-    pytest
-    ```
-
-*   **Run UI tests in Headed mode (to see the browser actions):**
-    ```bash
-    pytest tests/test_ui_configurator.py --headed
-    ```
-
-*   **Run only API tests:**
-    ```bash
-    pytest tests/test_api_sharing.py
-    ```
-
-*   **Generate an HTML Test Report:**
-    ```bash
-    pytest --html=report.html
-    ```
+*   **Интерактивный Allure-отчёт:** Результаты прогонов автоматически собираются и публикуются на GitHub Pages.
+*   **Ссылка на живой отчёт:** Вы можете посмотреть графики, шаги и статусы прохождения тестов в реальном времени по ссылке: 
+    👉 https://github.io
