@@ -1,9 +1,10 @@
 import pytest
+import pytest_html
 from playwright.sync_api import sync_playwright, APIRequestContext, Page
 
 @pytest.fixture(scope="session")
 def base_url() -> str:
-    return "https://trip.elmobil.ru"
+    return "https://elmobil.ru"
 
 @pytest.fixture(scope="session")
 def api_request_context(base_url: str) -> APIRequestContext:
@@ -18,7 +19,7 @@ def api_request_context(base_url: str) -> APIRequestContext:
         yield request_context
         request_context.dispose()
 
-# Хук для добавления скриншотов в красивый HTML-отчет при падении UI-теста
+# Автоматическое добавление скриншота экрана в HTML-отчет при падении любого UI теста
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
     outcome = yield
@@ -28,7 +29,6 @@ def pytest_runtest_makereport(item, call):
     if report.when == "call" and report.failed:
         if "page" in item.funcargs:
             page: Page = item.funcargs["page"]
-            screenshot_base64 = page.screenshot(type="png").hex()
-            # Добавляем скриншот в HTML-отчет
+            screenshot_base64 = page.screenshot(type="png", full_page=False).hex()
             extra.append(pytest_html.extras.image(screenshot_base64, mime_type="image/png"))
             report.extra = extra
