@@ -29,26 +29,19 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    # Устанавливаем и браузер, и ВСЕ СИСТЕМНЫЕ БИБЛИОТЕКИ ЛИНУКСА для него
     - name: Install Playwright and System Dependencies
       run: |
         playwright install chromium
         playwright install-deps chromium
 
-    # Создаем папку для результатов и принудительно пихаем туда логи тестов
-    - name: Run tests with Allure
-      run: |
-        mkdir -p allure-results
-        pytest tests/ --alluredir=allure-results
-      continue-on-error: true
-
     - name: Install Allure CLI
       run: |
         npm install -g allure-commandline --save-dev
 
-    # Генерируем отчет
-    - name: Generate Allure Report HTML
+    # СРАЗУ запускаем тесты и ТУТ ЖЕ генерируем HTML в одну папку allure-report
+    - name: Run Tests and Generate Allure Report
       run: |
+        pytest tests/ --alluredir=allure-results || true
         allure generate allure-results --clean -o allure-report
 
     - name: Deploy Allure Report to GitHub Pages
