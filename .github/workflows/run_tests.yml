@@ -1,50 +1,51 @@
 name: UI and API Automation Test Suite
 
-# Триггеры запуска пайплайна
 on:
   push:
     branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   test:
-    timeout-minutes: 15
     runs-on: ubuntu-latest
-
     steps:
-    # Шаг 1: Скачиваем код репозитория на виртуальную машину GitHub
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # Шаг 2: Разворачиваем Python нужной версии
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
-        cache: 'pip' # Кэшируем зависимости для ускорения повторных запусков
+        cache: 'pip'
 
-    # Шаг 3: Устанавливаем все зависимости из requirements.txt
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-
-    # Шаг 4: Устанавливаем системные зависимости и браузеры для Playwright
-    - name: Install Playwright Browsers
-      run: |
         playwright install --with-deps chromium
 
-    # Шаг 5: Запускаем Pytest (флаг --headed убираем, в CI тесты идут в headless режиме)
-    - name: Run automated tests
+    # Запускаем тесты и складываем результаты в папку allure-results
+    - name: Run tests with Allure
       run: |
-        pytest -v --browser chromium --html=report.html --self-contained-html
+        pytest --alluredir=allure-results
+      continue-on-error: true
 
-    # Шаг 6: Сохраняем сгенерированный HTML-отчет как артефакт сборки (будет доступен для скачивания)
-    - name: Upload Test Report
-      if: always() # Этот шаг выполнится даже если тесты упадут
+    # Генерируем красивый HTML-отчёт из результатов
+    - name: Load Allure history and generate report
+      uses: simple-elf/allure-report-action@master
+      if: always()
+      with:
+        allure_results: allure-results
+        allure_report: allure-report
+        allure_history: allure-history
+
+    # Заливаем готовый отчёт в артефакты
+    - name: Upload Allure Report
       uses: actions/upload-artifact@v4
       with:
-        name: pytest-html-report
-        path: report.html
-        retention-days: 7 # Отчет хранится на Гитхабе 7 дней
+        name: allure-report
+        path: allure-report
